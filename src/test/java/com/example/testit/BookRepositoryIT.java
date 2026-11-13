@@ -24,9 +24,12 @@ public class BookRepositoryIT {
 	@Test
 	public void testFindByMemberAndStatus() {
 		Member member = new Member();
+		member.setUsername("maelgangloff");
 		Member savedMember = this.memberRepository.save(member);
 
 		Book book = new Book();
+		book.setAuthor("Maël Gangloff");
+		book.setTitle("Mon aventure en cours de FullStack <3");
 		book.setStatus(Status.EMPRUNTE);
 		book.setBorrower(savedMember);
 		Book savedBook = this.bookRepository.save(book);
