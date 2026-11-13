@@ -23,12 +23,13 @@ public class BookServiceTest {
 	private BookService bookService;
 	private BookRepository bookRepositoryMock;
 	private MemberRepository memberRepositoryMock;
+	private MailService mailServiceMock;
 
 	@BeforeEach
 	void setUp() {
 		this.bookRepositoryMock = Mockito.mock(BookRepository.class);
 		this.memberRepositoryMock = Mockito.mock(MemberRepository.class);
-		MailService mailServiceMock = Mockito.mock(MailService.class);
+		this.mailServiceMock = Mockito.mock(MailService.class);
 		this.bookService = new BookService(bookRepositoryMock, memberRepositoryMock, mailServiceMock);
 	}
 
@@ -102,5 +103,65 @@ public class BookServiceTest {
 		Assertions.assertEquals(Status.EMPRUNTE, result.getStatus());
 		Assertions.assertEquals(member, result.getBorrower());
 		Mockito.verify(bookRepositoryMock).save(book);
+	}
+
+	// Tests de la seconde méthode (returnBook)
+
+	@Test
+	public void testReturnBookNotExist() {
+		Mockito.when(bookRepositoryMock.findById(BOOK_ID)).thenReturn(Optional.empty());
+
+		Assertions.assertThrows(IllegalArgumentException.class, () -> bookService.returnBook(BOOK_ID, MEMBER_ID));
+
+		Mockito.verifyNoInteractions(mailServiceMock);
+	}
+
+	@Test
+	public void testReturnBookNotBorrowed() {
+		Book book = new Book();
+		book.setStatus(Status.DISPONIBLE);
+		Mockito.when(bookRepositoryMock.findById(BOOK_ID)).thenReturn(Optional.of(book));
+
+		Assertions.assertThrows(IllegalStateException.class,
+				() -> bookService.returnBook(BOOK_ID, MEMBER_ID));
+
+		Mockito.verify(bookRepositoryMock, Mockito.never()).save(Mockito.any());
+		Mockito.verifyNoInteractions(mailServiceMock);
+	}
+
+	@Test
+	public void testReturnBookWithoutReferent() {
+		Member member = new Member();
+		Book book = new Book();
+		book.setStatus(Status.EMPRUNTE);
+		book.setBorrower(member);
+
+		Mockito.when(bookRepositoryMock.findById(BOOK_ID)).thenReturn(Optional.of(book));
+		Mockito.when(bookRepositoryMock.save(book)).thenReturn(book);
+
+		Book result = bookService.returnBook(BOOK_ID, MEMBER_ID);
+
+		Assertions.assertEquals(Status.RENDU, result.getStatus());
+		Mockito.verify(mailServiceMock, Mockito.times(1))
+				.sendMail(Mockito.eq(member), Mockito.eq("Livre rendu"), Mockito.anyString());
+		Mockito.verifyNoMoreInteractions(mailServiceMock);
+	}
+
+	@Test
+	public void testReturnBookWithReferent() {
+		Member member = new Member();
+		member.setReferent(new Member());
+		Book book = new Book();
+		book.setStatus(Status.EMPRUNTE);
+		book.setBorrower(member);
+
+		Mockito.when(bookRepositoryMock.findById(BOOK_ID)).thenReturn(Optional.of(book));
+		Mockito.when(bookRepositoryMock.save(book)).thenReturn(book);
+
+		Book result = bookService.returnBook(BOOK_ID, MEMBER_ID);
+
+		Assertions.assertEquals(Status.RENDU, result.getStatus());
+		Mockito.verify(mailServiceMock, Mockito.times(1)).sendMail(Mockito.eq(member), Mockito.anyString(), Mockito.anyString());
+		Mockito.verify(mailServiceMock, Mockito.times(1)).sendMail(Mockito.eq(member.getReferent()), Mockito.anyString(), Mockito.anyString());
 	}
 }
