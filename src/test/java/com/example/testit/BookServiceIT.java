@@ -54,4 +54,20 @@ class BookServiceIT {
 		Assertions.assertEquals(savedMember.getId(), updatedBook.getBorrower().getId());
 		Assertions.assertEquals(Status.EMPRUNTE, updatedBook.getStatus());
 	}
+
+	@Test
+	public void createAndUpdateDeletedBook() {
+		// Création d'un book dans la db
+		Book book = new Book();
+		book.setStatus(Status.DISPONIBLE);
+		book.setTitle("Mon aventure en Junior-Entreprise");
+		book.setAuthor("Maël Gangloff");
+		Book savedBook = bookRepository.save(book);
+
+		// Suppression du livre
+		bookService.deleteBook(savedBook.getId());
+
+		// Si le livre n'existe pas, on attend une exception
+		Assertions.assertThrows(IllegalArgumentException.class, () -> bookService.updateBook(book));
+	}
 }

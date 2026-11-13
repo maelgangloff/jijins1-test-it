@@ -31,9 +31,6 @@ class BookControllerIT {
 	private MockMvc mockMvc;
 
 	@Autowired
-	private BookRepository bookRepository;
-
-	@Autowired
 	private BookService bookService;
 
 	@MockitoBean
