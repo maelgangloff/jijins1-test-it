@@ -12,6 +12,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -54,5 +55,13 @@ class BookControllerIT {
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.status").value("RENDU"));
+	}
+
+	@Test
+	void testGetAllBooks() throws Exception {
+		mockMvc.perform(get("/books"))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$").isArray());
 	}
 }
