@@ -1,21 +1,16 @@
 package com.example.testit;
 
-import com.example.testit.adapter.member.CurrentMemberService;
+import com.example.testit.adapter.member.CurrentMemberServiceFake;
 import com.example.testit.model.Book;
 import com.example.testit.model.Member;
-import com.example.testit.repository.BookRepository;
 import com.example.testit.repository.MemberRepository;
 import com.example.testit.service.BookService;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -33,20 +28,19 @@ class BookControllerIT {
 	@Autowired
 	private BookService bookService;
 
-	@MockitoBean
-	private CurrentMemberService currentMemberService;
-
 	@Autowired
 	private MemberRepository memberRepository;
+
+	@Autowired
+	private CurrentMemberServiceFake currentMemberService;
 
 	@Test
 	void testBorrowAndReturnBook() throws Exception {
 		Member member = new Member();
-		member.setUsername("maelgangloff");
-		Member savedMember = this.memberRepository.saveAndFlush(member);
+		member.setUsername("mael.gangloff");
+		member = memberRepository.save(member);
 
-		Mockito.when(currentMemberService.getCurrentMemberId())
-				.thenReturn(Optional.of(savedMember.getId()));
+		currentMemberService.setCurrent(member.getId());
 
 		Book savedBook = bookService.createBook("Mon aventure en cours de FullStack <3", "Maël Gangloff");
 
