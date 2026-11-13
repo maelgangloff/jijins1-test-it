@@ -56,18 +56,17 @@ public class BookService {
                 .orElseThrow(() -> new IllegalArgumentException("Book not found"));
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("Member not found"));
-        if (book.getStatus() == Status.EMPRUNTE) {
+        if (book.getStatus() != Status.DISPONIBLE) {
             throw new IllegalStateException("Book can only be borrowed if status is DISPONIBLE");
         }
         // Vérifier si le membre a déjà un livre EMPRUNTE
-        List<Book> ongoingLoans = bookRepository.findByMemberAndStatus(memberId, Status.RENDU);
+        List<Book> ongoingLoans = bookRepository.findByMemberAndStatus(memberId, Status.EMPRUNTE);
         if (!ongoingLoans.isEmpty()) {
             throw new IllegalStateException("Member cannot borrow more than one book at a time");
         }
         book.setStatus(Status.EMPRUNTE);
         book.setBorrower(member);
-        Book saved = bookRepository.save(book);
-        return saved;
+		return bookRepository.save(book);
     }
 
     public Book returnBook(Long bookId, Long memberId) {
@@ -82,7 +81,7 @@ public class BookService {
         mailService.sendMail(member, "Livre rendu", "Merci d'avoir rendu '" + book.getTitle() + "'.");
         // Prévenir aussi le bibliothécaire référent si présent
         if (member.getReferent() != null) {
-            mailService.sendMail(member, "Livre rendu par un de vos membres",
+            mailService.sendMail(member.getReferent(), "Livre rendu par un de vos membres",
                     "'" + book.getTitle() + "' a été rendu par " + member.getUsername() + ".");
         }
         return saved;
