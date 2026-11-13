@@ -5,8 +5,10 @@ import com.example.testit.model.Book;
 import com.example.testit.service.BookService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -41,7 +43,7 @@ public class BookController {
 
     @PostMapping
     public Book createBook(@Valid @RequestBody BookRequest request) {
-        return bookService.createBook(request.title, request.title);
+        return bookService.createBook(request.title, request.author);
     }
 
     @PutMapping("/{id}")
@@ -65,7 +67,7 @@ public class BookController {
         Long memberId = currentMemberService.getCurrentMemberId()
                 .orElseThrow(() -> new IllegalStateException("Member not authenticated"));
         try {
-            return ResponseEntity.ok(bookService.returnBook(id, memberId));
+            return ResponseEntity.ok(bookService.borrowBook(id, memberId));
         } catch (IllegalArgumentException | IllegalStateException e) {
             return ResponseEntity.badRequest().body(null);
         }
