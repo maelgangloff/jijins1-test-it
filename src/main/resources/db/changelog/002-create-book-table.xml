@@ -6,10 +6,8 @@
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.17.xsd">
 
     <changeSet id="002" author="testit">
-        <createSequence sequenceName="book_seq" startValue="1" incrementBy="1"/>
-
         <createTable tableName="book">
-            <column name="id" type="bigint">
+            <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="title" type="varchar(255)">
@@ -21,10 +19,10 @@
             <column name="status" type="varchar(20)">
                 <constraints nullable="false"/>
             </column>
-            <column name="borrower_id" type="bigint">
-                <constraints nullable="true"/>
-            </column>
+            <column name="borrower_id" type="bigint"/>
         </createTable>
-        <addForeignKeyConstraint baseTableName="book" baseColumnNames="borrower_id" referencedTableName="member" referencedColumnNames="id" constraintName="fk_borrower_id"/>
+        <addForeignKeyConstraint baseTableName="book" baseColumnNames="borrower_id"
+                                 referencedTableName="member" referencedColumnNames="id"
+                                 constraintName="fk_borrower_id"/>
     </changeSet>
 </databaseChangeLog>

@@ -10,12 +10,13 @@
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="user" type="varchar(255)">
+            <column name="username" type="varchar(255)">
                 <constraints unique="true" nullable="false"/>
             </column>
             <column name="referent_id" type="bigint"/>
-            <column name="username" type="varchar(255)"/>
         </createTable>
-        <addForeignKeyConstraint baseTableName="member" baseColumnNames="referent_id" referencedTableName="member" referencedColumnNames="id" constraintName="fk_referent_id"/>
+        <addForeignKeyConstraint baseTableName="member" baseColumnNames="referent_id"
+                                 referencedTableName="member" referencedColumnNames="id"
+                                 constraintName="fk_referent_id"/>
     </changeSet>
 </databaseChangeLog>
