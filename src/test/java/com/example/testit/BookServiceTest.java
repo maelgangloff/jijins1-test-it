@@ -23,13 +23,12 @@ public class BookServiceTest {
 	private BookService bookService;
 	private BookRepository bookRepositoryMock;
 	private MemberRepository memberRepositoryMock;
-	private MailService mailServiceMock;
 
 	@BeforeEach
 	void setUp() {
 		this.bookRepositoryMock = Mockito.mock(BookRepository.class);
 		this.memberRepositoryMock = Mockito.mock(MemberRepository.class);
-		this.mailServiceMock = Mockito.mock(MailService.class);
+		MailService mailServiceMock = Mockito.mock(MailService.class);
 		this.bookService = new BookService(bookRepositoryMock, memberRepositoryMock, mailServiceMock);
 	}
 
